@@ -335,7 +335,7 @@ Shader "Custom/RayTracing"
 						float3 specularDir = reflect(ray.dir, hitInfo.normal);
 						ray.dir = normalize(lerp(diffuseDir, specularDir, material.smoothness * isSpecularBounce));
 
-						if (fulldst > LightDistance * 1.01f * material.age)
+						if (fulldst > LightDistance * 1.1f * material.age)
 						{
 							continue;
 						}

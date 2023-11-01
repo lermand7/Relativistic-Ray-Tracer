@@ -8,13 +8,13 @@ public class GhostLights : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        InvokeRepeating("Clone", 0.1f, 10f);
+        //InvokeRepeating("Clone", 0.1f, 1f);
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        Clone();
     }
 
     void Clone()
