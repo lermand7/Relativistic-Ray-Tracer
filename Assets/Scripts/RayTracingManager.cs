@@ -82,10 +82,13 @@ public class RayTracingManager : MonoBehaviour
 			{
 				InitFrame();
 
-				Graphics.ClearRandomWriteTargets();
-				rayTracingMaterial.SetPass(0);
-				rayTracingMaterial.SetBuffer("data", compute_buffer);
-				Graphics.SetRandomWriteTarget(1, compute_buffer, false);
+				if (!System.IO.File.Exists(Application.dataPath + "/data.txt"))
+				{
+					Graphics.ClearRandomWriteTargets();
+					rayTracingMaterial.SetPass(0);
+					rayTracingMaterial.SetBuffer("data", compute_buffer);
+					Graphics.SetRandomWriteTarget(1, compute_buffer, false);
+				}
 
 				// Create copy of prev frame
 				RenderTexture prevFrameCopy = RenderTexture.GetTemporary(src.width, src.height, 0, ShaderHelper.RGBA_SFloat);
@@ -96,18 +99,21 @@ public class RayTracingManager : MonoBehaviour
 				RenderTexture currentFrame = RenderTexture.GetTemporary(src.width, src.height, 0, ShaderHelper.RGBA_SFloat);
 				Graphics.Blit(null, currentFrame, rayTracingMaterial);
 
-				compute_buffer.GetData(data);
-
 				if (!System.IO.File.Exists(Application.dataPath + "/data.txt"))
 				{
+					compute_buffer.GetData(data);
+
 					sr = new StreamWriter(Application.dataPath + "/data.txt", true);
 
 					foreach (Vector3 item in data)
 					{
-						sr.WriteLine(item.x + " " + item.y);
+						sr.WriteLine(item.x + " " + item.y + " " + item.z);
 					}
 
 					sr.Close();
+
+					compute_buffer.Release();
+					compute_buffer.Dispose();
 				}
 
 				// Accumulate

@@ -307,6 +307,7 @@ Shader "Custom/RayTracing"
 				float3 incomingLight = 0;
 				float3 rayColour = 1;
 				float fulldst = 0;
+				float maxdst = 0;
 				float bounces = -1;
 
 				for (int bounceIndex = 0; bounceIndex <= MaxBounceCount; bounceIndex ++)
@@ -369,8 +370,15 @@ Shader "Custom/RayTracing"
 					}
 				}
 
+				if (maxdst < fulldst)
+				{
+					maxdst = fulldst;
+					data[0].z = bounces;
+				}
+
 				data[index].x = fulldst;
 				data[index].y = bounces;
+
 
 				return incomingLight;
 			}
