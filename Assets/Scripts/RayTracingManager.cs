@@ -51,8 +51,17 @@ public class RayTracingManager : MonoBehaviour
     {
 		public float dst;
 		public float bounces;
-		public Vector3 hitPoints;
-    }
+		public Vector3 hitPoint1;
+		public Vector3 hitPoint2;
+		public Vector3 hitPoint3;
+		public Vector3 hitPoint4;
+		public Vector3 hitPoint5;
+		public Vector3 hitPoint6;
+		public Vector3 hitPoint7;
+		public Vector3 hitPoint8;
+		public Vector3 hitPoint9;
+		public Vector3 hitPoint10;
+	}
 
 	Values[] data2;
 
@@ -61,7 +70,7 @@ public class RayTracingManager : MonoBehaviour
 	void Start()
 	{
 		data2 = new Values[Screen.width * Screen.height];
-		compute_buffer = new ComputeBuffer(data2.Length, sizeof(float) * 5, ComputeBufferType.Default);
+		compute_buffer = new ComputeBuffer(data2.Length, sizeof(float) * 32, ComputeBufferType.Default);
 		numRenderedFrames = 0;
 	}
 
@@ -91,7 +100,7 @@ public class RayTracingManager : MonoBehaviour
 			{
 				InitFrame();
 
-				if (!System.IO.File.Exists(Application.dataPath + "/data.txt"))
+				if (!System.IO.File.Exists(Application.dataPath + "/data2.txt"))
 				{
 					Graphics.ClearRandomWriteTargets();
 					rayTracingMaterial.SetPass(0);
@@ -108,15 +117,47 @@ public class RayTracingManager : MonoBehaviour
 				RenderTexture currentFrame = RenderTexture.GetTemporary(src.width, src.height, 0, ShaderHelper.RGBA_SFloat);
 				Graphics.Blit(null, currentFrame, rayTracingMaterial);
 
-				if (!System.IO.File.Exists(Application.dataPath + "/data.txt"))
+				if (!System.IO.File.Exists(Application.dataPath + "/data2.txt"))
 				{
 					compute_buffer.GetData(data2);
 
-					sr = new StreamWriter(Application.dataPath + "/data.txt", true);
+					float maxdst = 0;
+					float maxbounces = 0;
+					Vector3[] hitPoints = new Vector3[10];
+
+                    foreach (Values item in data2)
+                    {
+						if(maxdst < item.dst)
+                        {
+							maxdst = item.dst;
+							maxbounces = item.bounces;
+							hitPoints[0] = item.hitPoint1;
+							hitPoints[1] = item.hitPoint2;
+							hitPoints[2] = item.hitPoint3;
+							hitPoints[3] = item.hitPoint4;
+							hitPoints[4] = item.hitPoint5;
+							hitPoints[5] = item.hitPoint6;
+							hitPoints[6] = item.hitPoint7;
+							hitPoints[7] = item.hitPoint8;
+							hitPoints[8] = item.hitPoint9;
+							hitPoints[9] = item.hitPoint10;
+						}
+                    }
+
+					sr = new StreamWriter(Application.dataPath + "/data2.txt", true);
+
+					sr.WriteLine(maxdst + " " + maxbounces);
+
+                    for (int j = 0; j < 10; j++)
+                    {
+						sr.WriteLine(hitPoints[j].x + " " + hitPoints[j].y + " " + hitPoints[j].z);
+					}
+
+					sr.WriteLine("");
 
 					foreach (Values item in data2)
 					{
-						sr.WriteLine(item.dst + " " + item.bounces + " " + item.hitPoints);
+						sr.WriteLine(item.dst + " " + item.bounces);
 					}
 
 					sr.Close();

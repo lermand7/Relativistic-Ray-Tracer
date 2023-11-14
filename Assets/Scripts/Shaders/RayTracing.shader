@@ -36,7 +36,16 @@ Shader "Custom/RayTracing"
 			{
 				float dst;
 				float bounces;
-				float3 hitPoints;
+				float3 hitPoint1;
+				float3 hitPoint2;
+				float3 hitPoint3;
+				float3 hitPoint4;
+				float3 hitPoint5;
+				float3 hitPoint6;
+				float3 hitPoint7;
+				float3 hitPoint8;
+				float3 hitPoint9;
+				float3 hitPoint10;
 			};
 
 			// --- Settings and constants ---
@@ -379,17 +388,18 @@ Shader "Custom/RayTracing"
 					}
 				}
 
-				if (maxdst < fulldst)
-				{
-					maxdst = fulldst;
-					for (int i = 0; i < 10; i++)
-					{
-						data[i].hitPoints = hitPoints[i];
-					}
-				}
-
 				data[index].dst = fulldst;
 				data[index].bounces = bounces;
+				data[index].hitPoint1 = hitPoints[0];
+				data[index].hitPoint2 = hitPoints[1];
+				data[index].hitPoint3 = hitPoints[2];
+				data[index].hitPoint4 = hitPoints[3];
+				data[index].hitPoint5 = hitPoints[4];
+				data[index].hitPoint6 = hitPoints[5];
+				data[index].hitPoint7 = hitPoints[6];
+				data[index].hitPoint8 = hitPoints[7];
+				data[index].hitPoint9 = hitPoints[8];
+				data[index].hitPoint10 = hitPoints[9];
 
 
 				return incomingLight;
