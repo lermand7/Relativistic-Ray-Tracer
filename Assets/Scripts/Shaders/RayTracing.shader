@@ -32,10 +32,17 @@ Shader "Custom/RayTracing"
 				return o;
 			}
 
+			struct Values
+			{
+				float dst;
+				float bounces;
+				float3 hitPoints;
+			};
+
 			// --- Settings and constants ---
 			static const float PI = 3.1415;
 
-			uniform RWStructuredBuffer<float3> data : register(u1);
+			uniform RWStructuredBuffer<Values> data : register(u1);
 
 			// Raytracing Settings
 			int MaxBounceCount;
@@ -309,6 +316,7 @@ Shader "Custom/RayTracing"
 				float fulldst = 0;
 				float maxdst = 0;
 				float bounces = -1;
+				float3 hitPoints[10];
 
 				for (int bounceIndex = 0; bounceIndex <= MaxBounceCount; bounceIndex ++)
 				{
@@ -318,6 +326,7 @@ Shader "Custom/RayTracing"
 					{
 						fulldst += hitInfo.dst;
 						bounces++;
+						hitPoints[bounceIndex] = hitInfo.hitPoint;
 
 						RayTracingMaterial material = hitInfo.material;
 
@@ -373,11 +382,14 @@ Shader "Custom/RayTracing"
 				if (maxdst < fulldst)
 				{
 					maxdst = fulldst;
-					data[0].z = bounces;
+					for (int i = 0; i < 10; i++)
+					{
+						data[i].hitPoints = hitPoints[i];
+					}
 				}
 
-				data[index].x = fulldst;
-				data[index].y = bounces;
+				data[index].dst = fulldst;
+				data[index].bounces = bounces;
 
 
 				return incomingLight;

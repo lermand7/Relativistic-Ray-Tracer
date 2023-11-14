@@ -47,12 +47,21 @@ public class RayTracingManager : MonoBehaviour
 	ComputeBuffer compute_buffer;
 	Vector3[] data;
 
+	public struct Values
+    {
+		public float dst;
+		public float bounces;
+		public Vector3 hitPoints;
+    }
+
+	Values[] data2;
+
 	StreamWriter sr;
 
 	void Start()
 	{
-		data = new Vector3[Screen.width * Screen.height];
-		compute_buffer = new ComputeBuffer(data.Length, sizeof(float) * 3, ComputeBufferType.Default);
+		data2 = new Values[Screen.width * Screen.height];
+		compute_buffer = new ComputeBuffer(data2.Length, sizeof(float) * 5, ComputeBufferType.Default);
 		numRenderedFrames = 0;
 	}
 
@@ -101,13 +110,13 @@ public class RayTracingManager : MonoBehaviour
 
 				if (!System.IO.File.Exists(Application.dataPath + "/data.txt"))
 				{
-					compute_buffer.GetData(data);
+					compute_buffer.GetData(data2);
 
 					sr = new StreamWriter(Application.dataPath + "/data.txt", true);
 
-					foreach (Vector3 item in data)
+					foreach (Values item in data2)
 					{
-						sr.WriteLine(item.x + " " + item.y + " " + item.z);
+						sr.WriteLine(item.dst + " " + item.bounces + " " + item.hitPoints);
 					}
 
 					sr.Close();
