@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using static UnityEngine.Mathf;
+using System.IO;
 
 [ExecuteAlways, ImageEffectAllowedInSceneView]
 public class RayTracingManager : MonoBehaviour
@@ -43,8 +44,15 @@ public class RayTracingManager : MonoBehaviour
 
 	RenderTexture target;
 
+	ComputeBuffer compute_buffer;
+	Vector3[] data;
+
+	StreamWriter sr;
+
 	void Start()
 	{
+		data = new Vector3[Screen.width * Screen.height];
+		compute_buffer = new ComputeBuffer(data.Length, sizeof(float) * 3, ComputeBufferType.Default);
 		numRenderedFrames = 0;
 	}
 
@@ -74,6 +82,11 @@ public class RayTracingManager : MonoBehaviour
 			{
 				InitFrame();
 
+				Graphics.ClearRandomWriteTargets();
+				rayTracingMaterial.SetPass(0);
+				rayTracingMaterial.SetBuffer("data", compute_buffer);
+				Graphics.SetRandomWriteTarget(1, compute_buffer, false);
+
 				// Create copy of prev frame
 				RenderTexture prevFrameCopy = RenderTexture.GetTemporary(src.width, src.height, 0, ShaderHelper.RGBA_SFloat);
 				Graphics.Blit(resultTexture, prevFrameCopy);
@@ -82,6 +95,20 @@ public class RayTracingManager : MonoBehaviour
 				rayTracingMaterial.SetInt("Frame", numRenderedFrames);
 				RenderTexture currentFrame = RenderTexture.GetTemporary(src.width, src.height, 0, ShaderHelper.RGBA_SFloat);
 				Graphics.Blit(null, currentFrame, rayTracingMaterial);
+
+				compute_buffer.GetData(data);
+
+				if (!System.IO.File.Exists(Application.dataPath + "/data.txt"))
+				{
+					sr = new StreamWriter(Application.dataPath + "/data.txt", true);
+
+					foreach (Vector3 item in data)
+					{
+						sr.WriteLine(item.x + " " + item.y);
+					}
+
+					sr.Close();
+				}
 
 				// Accumulate
 				accumulateMaterial.SetInt("_Frame", numRenderedFrames);

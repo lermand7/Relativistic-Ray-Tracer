@@ -9,6 +9,7 @@ Shader "Custom/RayTracing"
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
+			#pragma target 5.0
 			#include "UnityCG.cginc"
 
 			struct appdata
@@ -33,6 +34,8 @@ Shader "Custom/RayTracing"
 
 			// --- Settings and constants ---
 			static const float PI = 3.1415;
+
+			uniform RWStructuredBuffer<float3> data : register(u1);
 
 			// Raytracing Settings
 			int MaxBounceCount;
@@ -299,11 +302,12 @@ Shader "Custom/RayTracing"
 			}
 
 
-			float3 Trace(Ray ray, inout uint rngState)
+			float3 Trace(Ray ray, inout uint rngState, uint index)
 			{
 				float3 incomingLight = 0;
 				float3 rayColour = 1;
 				float fulldst = 0;
+				float bounces = -1;
 
 				for (int bounceIndex = 0; bounceIndex <= MaxBounceCount; bounceIndex ++)
 				{
@@ -312,6 +316,7 @@ Shader "Custom/RayTracing"
 					if (hitInfo.didHit)
 					{
 						fulldst += hitInfo.dst;
+						bounces++;
 
 						RayTracingMaterial material = hitInfo.material;
 
@@ -337,12 +342,12 @@ Shader "Custom/RayTracing"
 
 						if (fulldst > LightDistance * 1.1f * material.age)
 						{
-							continue;
+							//continue;
 						}
 
 						if (fulldst < LightDistance * material.age)
 						{
-							continue;
+							//continue;
 						}
 
 						// Update light calculations
@@ -363,6 +368,9 @@ Shader "Custom/RayTracing"
 						break;
 					}
 				}
+
+				data[index].x = fulldst;
+				data[index].y = bounces;
 
 				return incomingLight;
 			}
@@ -397,7 +405,7 @@ Shader "Custom/RayTracing"
 					float3 jitteredFocusPoint = focusPoint + camRight * jitter.x + camUp * jitter.y;
 					ray.dir = normalize(jitteredFocusPoint - ray.origin);
 					// Trace
-					totalIncomingLight += Trace(ray, rngState);
+					totalIncomingLight += Trace(ray, rngState, pixelIndex);
 				}
 
 				float3 pixelCol = totalIncomingLight / NumRaysPerPixel;
