@@ -6,7 +6,7 @@ using static UnityEngine.Mathf;
 public class RayTracingManager : MonoBehaviour
 {
 	// Raytracer is currently *very* slow, so limit the number of triangles allowed per mesh
-	public const int TriangleLimit = 1500;
+	public const int TriangleLimit = 3000;
 
 	[Header("Ray Tracing Settings")]
 	[SerializeField, Range(0, 32)] int maxBounceCount = 4;
