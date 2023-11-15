@@ -20,6 +20,7 @@ public class RayTracingManager : MonoBehaviour
 
 	[Header("View Settings")]
 	[SerializeField] bool useShaderInSceneView;
+	[SerializeField] bool visMode;
 	[Header("References")]
 	[SerializeField] Shader rayTracingShader;
 	[SerializeField, HideInInspector] Shader accumulateShader;
@@ -66,6 +67,7 @@ public class RayTracingManager : MonoBehaviour
 	Values[] data2;
 
 	StreamWriter sr;
+	StreamWriter sr2;
 
 	void Start()
 	{
@@ -125,10 +127,10 @@ public class RayTracingManager : MonoBehaviour
 					float maxbounces = 0;
 					Vector3[] hitPoints = new Vector3[10];
 
-                    foreach (Values item in data2)
-                    {
-						if(maxdst < item.dst)
-                        {
+					foreach (Values item in data2)
+					{
+						if (maxdst < item.dst)
+						{
 							maxdst = item.dst;
 							maxbounces = item.bounces;
 							hitPoints[0] = item.hitPoint1;
@@ -142,14 +144,14 @@ public class RayTracingManager : MonoBehaviour
 							hitPoints[8] = item.hitPoint9;
 							hitPoints[9] = item.hitPoint10;
 						}
-                    }
+					}
 
 					sr = new StreamWriter(Application.dataPath + "/data2.txt", true);
 
 					sr.WriteLine(maxdst + " " + maxbounces);
 
-                    for (int j = 0; j < 10; j++)
-                    {
+					for (int j = 0; j < 10; j++)
+					{
 						sr.WriteLine(hitPoints[j].x + " " + hitPoints[j].y + " " + hitPoints[j].z);
 					}
 
@@ -164,6 +166,20 @@ public class RayTracingManager : MonoBehaviour
 
 					compute_buffer.Release();
 					compute_buffer.Dispose();
+				}
+
+				if (!System.IO.File.Exists(Application.dataPath + "/points.txt"))
+				{
+					sr2 = new StreamWriter(Application.dataPath + "/points.txt", true);
+
+					foreach (Values item in data2)
+					{
+						sr2.WriteLine(item.hitPoint1 + "/" + item.hitPoint2 + "/" + item.hitPoint3 + "/" +
+							item.hitPoint4 + "/" + item.hitPoint5 + "/" + item.hitPoint6 + "/" + item.hitPoint7 + "/" +
+							item.hitPoint8 + "/" + item.hitPoint9 + "/" + item.hitPoint10);
+					}
+
+					sr2.Close();
 				}
 
 				// Accumulate
